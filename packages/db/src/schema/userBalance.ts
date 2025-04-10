@@ -24,7 +24,7 @@ export const userBalances = pgTable(
   (table) => [
     index("idx_user_balances_open_user_id").using(
       "btree",
-      table.openUserId.asc().nullsLast().op("text_ops")
+      table.openUserId.asc().nullsLast()
     ),
   ]
 );

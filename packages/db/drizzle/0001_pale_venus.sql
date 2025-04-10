@@ -1,0 +1,1 @@
+ALTER TABLE "api_key" ADD COLUMN "desc" varchar(255) NOT NULL;

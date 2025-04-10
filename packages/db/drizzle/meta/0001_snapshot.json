@@ -1,6 +1,6 @@
 {
-  "id": "6b144729-c524-47b2-8c36-5b6997bfccfa",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "df981a4f-e703-4489-bde3-0eb76cf1f912",
+  "prevId": "6b144729-c524-47b2-8c36-5b6997bfccfa",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -160,6 +160,12 @@
         },
         "key": {
           "name": "key",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "desc": {
+          "name": "desc",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true

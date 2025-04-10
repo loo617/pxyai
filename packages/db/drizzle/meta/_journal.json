@@ -5,8 +5,43 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1743999200935,
-      "tag": "0000_dark_mimic",
+      "when": 1744165014723,
+      "tag": "0000_wandering_blindfold",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744176255687,
+      "tag": "0001_pale_venus",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744176353241,
+      "tag": "0002_many_callisto",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1744193183134,
+      "tag": "0003_handy_blizzard",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1744265691323,
+      "tag": "0004_ancient_sleepwalker",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1744266344866,
+      "tag": "0005_long_lyja",
       "breakpoints": true
     }
   ]

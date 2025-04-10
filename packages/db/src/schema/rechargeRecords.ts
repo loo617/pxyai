@@ -33,7 +33,7 @@ export const rechargeRecords = pgTable(
   (table) => [
     index("idx_recharge_records_open_user_id").using(
       "btree",
-      table.openUserId.asc().nullsLast().op("text_ops")
+      table.openUserId.asc().nullsLast()
     ),
   ]
 );

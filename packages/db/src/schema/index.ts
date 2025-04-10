@@ -6,3 +6,4 @@ export * from "./openUser";
 export * from "./provider";
 export * from "./rechargeRecords";
 export * from "./userBalance";
+export * from "./captchas";

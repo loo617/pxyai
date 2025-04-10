@@ -1,6 +1,6 @@
 {
-  "id": "6b144729-c524-47b2-8c36-5b6997bfccfa",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "600d0376-8007-400b-a029-250064914c0d",
+  "prevId": "195e516b-4c95-4cec-bd07-8e59803017b6",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -29,17 +29,17 @@
         },
         "is_superadmin": {
           "name": "is_superadmin",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "default": false
+          "default": 1
         },
         "must_reset_password": {
           "name": "must_reset_password",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "default": true
+          "default": 1
         },
         "email": {
           "name": "email",

@@ -1,6 +1,6 @@
 {
-  "id": "6b144729-c524-47b2-8c36-5b6997bfccfa",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "55b95458-9e0b-4b02-83e0-098cbb8277d6",
+  "prevId": "2a256ecb-6aab-41d5-8084-514900b3d896",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -29,17 +29,17 @@
         },
         "is_superadmin": {
           "name": "is_superadmin",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "default": false
+          "default": 1
         },
         "must_reset_password": {
           "name": "must_reset_password",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "default": true
+          "default": 1
         },
         "email": {
           "name": "email",
@@ -789,6 +789,66 @@
           "columns": [
             {
               "expression": "open_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.captchas": {
+      "name": "captchas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "captchas_id": {
+          "name": "captchas_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "captchas_text": {
+          "name": "captchas_text",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_captchas_id": {
+          "name": "idx_captchas_id",
+          "columns": [
+            {
+              "expression": "captchas_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

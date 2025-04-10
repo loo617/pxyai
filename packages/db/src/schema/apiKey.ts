@@ -23,13 +23,10 @@ export const apiKey = pgTable(
     expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }),
   },
   (table) => [
-    index("idx_api_key_key").using(
-      "btree",
-      table.key.asc().nullsLast().op("text_ops")
-    ),
+    index("idx_api_key_key").using("btree", table.key.asc().nullsLast()),
     index("idx_api_key_open_user_id").using(
       "btree",
-      table.openUserId.asc().nullsLast().op("text_ops")
+      table.openUserId.asc().nullsLast()
     ),
   ]
 );

@@ -42,17 +42,14 @@ export const modelLogs = pgTable(
     tokensPerSecond: numeric("tokens_per_second", { precision: 10, scale: 2 }),
   },
   (table) => [
-    index("idx_model_logs_model").using(
-      "btree",
-      table.model.asc().nullsLast().op("text_ops")
-    ),
+    index("idx_model_logs_model").using("btree", table.model.asc().nullsLast()),
     index("idx_model_logs_open_user_id").using(
       "btree",
-      table.openUserId.asc().nullsLast().op("text_ops")
+      table.openUserId.asc().nullsLast()
     ),
     index("idx_model_logs_provider_code").using(
       "btree",
-      table.providerCode.asc().nullsLast().op("text_ops")
+      table.providerCode.asc().nullsLast()
     ),
   ]
 );
