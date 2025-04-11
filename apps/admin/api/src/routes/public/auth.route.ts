@@ -10,7 +10,7 @@ import { signJwt } from "@/utils/jwt";
 export const authRoute = new Hono();
 
 //获取验证码
-authRoute.get("/", async (c) => {
+authRoute.get("/captcha", async (c) => {
   // 创建验证码
   const captcha = svgCaptcha.create({
     size: 4, // 验证码长度
