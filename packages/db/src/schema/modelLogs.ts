@@ -8,7 +8,6 @@ import {
   serial,
   text,
   timestamp,
-  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -33,11 +32,11 @@ export const modelLogs = pgTable(
     ipAddress: inet("ip_address").default("0.0.0.0").notNull(),
     requestStartTime: timestamp("request_start_time", {
       withTimezone: true,
-      mode: "string",
+      mode: "date",
     }),
     responseCompleteTime: timestamp("response_complete_time", {
       withTimezone: true,
-      mode: "string",
+      mode: "date",
     }),
     tokensPerSecond: numeric("tokens_per_second", { precision: 10, scale: 2 }),
   },

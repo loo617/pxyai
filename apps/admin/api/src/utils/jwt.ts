@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { env } from "@/env";
+import { env } from "../env";
 
 type JwtPayload = {
   userId: number;

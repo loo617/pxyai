@@ -4,7 +4,6 @@ import {
   pgTable,
   serial,
   timestamp,
-  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -23,10 +22,10 @@ export const model = pgTable("model", {
   ),
   status: integer().default(0).notNull(),
   rateLimit: integer("rate_limit").default(1).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .notNull(),
 });

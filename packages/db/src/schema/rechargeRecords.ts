@@ -6,7 +6,6 @@ import {
   pgTable,
   serial,
   timestamp,
-  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -26,9 +25,7 @@ export const rechargeRecords = pgTable(
     balanceBefore: bigint("balance_before", { mode: "number" }).notNull(),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     balanceAfter: bigint("balance_after", { mode: "number" }).notNull(),
-    createdAt: timestamp("created_at", { mode: "string" })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   },
   (table) => [
     index("idx_recharge_records_open_user_id").using(

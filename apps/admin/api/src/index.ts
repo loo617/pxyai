@@ -1,17 +1,15 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { env } from "@/env";
-import { apiRoute } from "@/routes/v1";
-import { publicRoute } from "@/routes/public";
-import { clearExpiredCaptchas } from "@/tasks/clearCaptcha";
+import { cors } from "hono/cors";
+import { env } from "./env";
+import { publicRoute } from "./routes/public";
+import { apiRoute } from "./routes/v1";
+import { clearExpiredCaptchas } from "./tasks/clearCaptcha";
 
-const app = new Hono();
-
-// app.use();
-
-app.route("/", publicRoute);
-
-app.route("/v1", apiRoute);
+const app = new Hono()
+  .use("*", cors())
+  .route("/", publicRoute)
+  .route("/v1", apiRoute);
 
 serve({
   fetch: app.fetch,
@@ -36,4 +34,4 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-export default app;
+export type AppType = typeof app;

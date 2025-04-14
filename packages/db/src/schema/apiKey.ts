@@ -4,7 +4,6 @@ import {
   pgTable,
   serial,
   timestamp,
-  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -18,9 +17,9 @@ export const apiKey = pgTable(
     status: integer().default(0).notNull(),
     createdAt: timestamp("created_at", {
       withTimezone: true,
-      mode: "string",
+      mode: "date",
     }).defaultNow(),
-    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }),
   },
   (table) => [
     index("idx_api_key_key").using("btree", table.key.asc().nullsLast()),

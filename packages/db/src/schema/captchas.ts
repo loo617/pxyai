@@ -1,11 +1,8 @@
-import { table } from "console";
 import {
   index,
-  integer,
   pgTable,
   serial,
   timestamp,
-  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -17,7 +14,7 @@ export const captchas = pgTable(
     captchasText: varchar("captchas_text", { length: 16 }).notNull(),
     createdAt: timestamp("created_at", {
       withTimezone: true,
-      mode: "string",
+      mode: "date",
     }).defaultNow(),
     expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }),
   },

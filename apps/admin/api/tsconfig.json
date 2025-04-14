@@ -1,14 +1,18 @@
 {
+  "extends": "@pxyai/typescript-config/base.json",
   "compilerOptions": {
+    "composite": true,
+    "incremental": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "types": ["node", "bun-types"],
+    "types": ["node"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
+    "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

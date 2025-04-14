@@ -1,13 +1,9 @@
 import {
-  bigint,
-  boolean,
   index,
   inet,
   integer,
-  numeric,
   pgTable,
   serial,
-  text,
   timestamp,
   unique,
   uuid,
@@ -29,12 +25,12 @@ export const adminUser = pgTable(
     loginRetries: integer("login_retries").default(0),
     lockedUntil: timestamp("locked_until", {
       withTimezone: true,
-      mode: "string",
+      mode: "date",
     }),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
   },

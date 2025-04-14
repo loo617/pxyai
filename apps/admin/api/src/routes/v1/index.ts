@@ -1,15 +1,13 @@
-import { jwtAuth } from "@/middlewares/auth";
+import { jwtAuth } from "../../middlewares/auth";
 import { Hono } from "hono";
-import { adminuserRoute } from "./adminuser";
-import { apikeyRoute } from "./apikey";
-import { modelRoute } from "./model";
-import { providerRoute } from "./provider";
+import { adminUserRoute } from "./adminUser.route";
+import { apiKeyRoute } from "./apiKey.route";
+import { modelRoute } from "./model.route";
+import { providerRoute } from "./provider.route";
 
-export const apiRoute = new Hono();
-
-apiRoute.use("/*", jwtAuth);
-
-apiRoute.route("/adminuser", adminuserRoute);
-apiRoute.route("/apikey", apikeyRoute);
-apiRoute.route("/model", modelRoute);
-apiRoute.route("/provider", providerRoute);
+export const apiRoute = new Hono()
+  .use("/*", jwtAuth)
+  .route("/adminUser", adminUserRoute)
+  .route("/apiKey", apiKeyRoute)
+  .route("/model", modelRoute)
+  .route("/provider", providerRoute);

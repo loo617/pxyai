@@ -1,7 +1,6 @@
 import {
   index,
   integer,
-  numeric,
   pgTable,
   serial,
   timestamp,
@@ -17,10 +16,10 @@ export const openUser = pgTable(
     email: varchar({ length: 255 }).notNull(),
     password: varchar({ length: 255 }).notNull(),
     isActive: integer("is_active").default(1).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
   },

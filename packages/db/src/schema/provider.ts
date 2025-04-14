@@ -20,10 +20,10 @@ export const provider = pgTable(
     status: integer().default(0).notNull(),
     apiUrl: varchar("api_url", { length: 255 }).default("").notNull(),
     apiKey: varchar("api_key", { length: 255 }).default("").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
   },
