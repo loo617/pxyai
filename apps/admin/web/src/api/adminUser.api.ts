@@ -1,15 +1,9 @@
-import { client } from './client'
+import { getAuthorizedClient } from './client'
 
-// 登录
-export const login = async (email: string, password: string) => {
-  const res = await client.auth.loginnocode.$post({
-    json: {
-      email: email,
-      password: password,
-    },
-  })
-  if (!res.ok) throw new Error('Failed to create post')
+//获取当前用户信息
+export const getMe = async () => {
+  const client = getAuthorizedClient()
+  const res = await client.v1.adminUser.me.$get()
+  if (!res.ok) throw new Error('Failed to get user detail')
   return await res.json()
 }
-
-// 登出

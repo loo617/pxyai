@@ -1,6 +1,3 @@
-import { z } from "zod";
-import { zValidator } from "../../utils/validator-wrapper";
-import { Hono } from "hono";
 import { db, eq } from "@pxyai/db";
 import { adminUser } from "@pxyai/db/src/schema/adminUser";
 import {
@@ -8,9 +5,26 @@ import {
   adminUserUpdateSchema,
 } from "@pxyai/db/src/zod";
 import bcrypt from "bcryptjs";
+import { Hono } from "hono";
+import { z } from "zod";
+import type { Variables } from "../../types";
 import { IdParamsSchema, PageQuerySchema } from "../../utils/commonSchema";
+import { zValidator } from "../../utils/validator-wrapper";
 
-export const adminUserRoute = new Hono()
+export const adminUserRoute = new Hono<{ Variables: Variables }>()
+  //获取当前用户信息
+  .get("/me", async (c) => {
+    const adminId = c.get("adminId");
+    if (!adminId) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+    const admin = await db
+      .select()
+      .from(adminUser)
+      .where(eq(adminUser.adminId, adminId))
+      .limit(1);
+    return c.json(admin[0]);
+  })
   //添加用户
   .post("/", zValidator("json", adminUserInsertScheme), async (c) => {
     try {

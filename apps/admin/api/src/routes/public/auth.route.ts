@@ -86,7 +86,7 @@ export const authRoute = new Hono()
 
       // ✅ 生成 JWT
       const token = signJwt({
-        userId: user.id,
+        adminId: user.adminId,
       });
 
       return c.json({
@@ -136,7 +136,7 @@ export const authRoute = new Hono()
 
       // ✅ 生成 JWT
       const token = signJwt({
-        userId: user.id,
+        adminId: user.adminId,
       });
 
       return c.json({

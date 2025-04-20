@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { login } from '@/api/adminUser.api'
+import { login } from '@/api/login.api'
 import { useAuth } from '@/stores/authStore'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -70,6 +70,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
     onSuccess: (data) => {
       setAccessToken(data.token)
+
       navigate({ to: '/' })
     },
   })

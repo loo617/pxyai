@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { env } from "../env";
 
 type JwtPayload = {
-  userId: number;
+  adminId: string;
 };
 
 export function signJwt(payload: JwtPayload) {

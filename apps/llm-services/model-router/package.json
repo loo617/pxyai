@@ -1,0 +1,8 @@
+{
+  "name": "@pxyai/llm-services-model-router",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "go run cmd/main.go"
+  }
+}
