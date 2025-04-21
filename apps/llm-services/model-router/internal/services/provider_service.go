@@ -1,7 +1,7 @@
 package services
 
 import (
-	"pxyai/go-shared/pkg/model"
+	"pxyai/llm-services/model-router/internal/model"
 	"sync"
 	"time"
 

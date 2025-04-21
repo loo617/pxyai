@@ -8,7 +8,6 @@ import (
 	"pxyai/llm-services/model-router/internal/providers"
 	"pxyai/llm-services/model-router/internal/schema"
 	"pxyai/llm-services/model-router/internal/services"
-	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -34,34 +33,12 @@ func NewChatHandler(apiKeyService services.ApiKeyService,
 }
 
 // 对话
-func (h *ChatHandler) Chat(c *fiber.Ctx) error {
-	stdCtx, cancel := context.WithTimeout(c.Context(), 30*time.Second)
+func (h *ChatHandler) Chat(c *fiber.Ctx, req schema.ChatRequest) error {
+	stdCtx, cancel := context.WithTimeout(c.Context(), 60*time.Second)
 	defer cancel()
 
-	//从header取出apiKey
-	authHeader := c.Get("Authorization")
-	parts := strings.SplitN(authHeader, "Bearer ", 2)
-	if len(parts) != 2 {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "invalid authorization header format",
-		})
-	}
-	apiKey := parts[1]
-
-	// 验证 API Key 是否可用
-	if _, err := h.apiKeyService.CheckApiKeyAvailable(apiKey); err != nil {
-		return err
-	}
-
-	var chatRequest schema.ChatRequest
-	if err := c.BodyParser(&chatRequest); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "cannot parse JSON",
-		})
-	}
-
 	// 1. 获取服务商code
-	providerDto, ok := h.providerService.GetCachedProvider(chatRequest.ProviderCode)
+	providerDto, ok := h.providerService.GetCachedProvider(req.ProviderCode)
 	if !ok {
 		return errors.New("provider is disabled")
 	}
@@ -74,7 +51,7 @@ func (h *ChatHandler) Chat(c *fiber.Ctx) error {
 		return errors.New("no avaliabled models")
 	}
 
-	model, ok := providerDto.ModelMap[chatRequest.ModelCode]
+	model, ok := providerDto.ModelMap[req.ModelCode]
 	if !ok || model.Status != 1 {
 		return errors.New("model is disabled")
 	}
@@ -82,20 +59,20 @@ func (h *ChatHandler) Chat(c *fiber.Ctx) error {
 	c.Set("model", model.Model)
 	// 3. 获取或创建服务商客户端
 	providerInfo := providerDto.ProviderInfo
-	pc, err := providers.NewProviderClient(providerInfo.APIURL, providerInfo.APIKey, chatRequest.ModelCode, chatRequest.ProviderCode)
+	pc, err := providers.NewProviderClient(providerInfo.APIURL, providerInfo.APIKey, req.ModelCode, req.ProviderCode)
 	if err != nil {
 		return err
 	}
 	h.client = pc
 
 	// 4. 调用服务商Chat api
-	if chatRequest.Stream {
+	if req.Stream {
 		c.Set("Content-Type", "text/event-stream")
 		c.Set("Cache-Control", "no-cache")
 		c.Set("Connection", "keep-alive")
 
 		c.Context().SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
-			result, err := h.client.StreamChat(stdCtx, chatRequest, w)
+			result, err := h.client.StreamChat(stdCtx, req, w)
 			if err != nil {
 				return
 			}
@@ -112,10 +89,12 @@ func (h *ChatHandler) Chat(c *fiber.Ctx) error {
 		return nil
 	} else {
 		//非流式
-		resp, err := h.client.Chat(stdCtx, chatRequest)
+		resp, err := h.client.Chat(stdCtx, req)
 		if err != nil {
 			return err
 		}
+		// token使用入库
+
 		data, err := json.Marshal(resp)
 		if err != nil {
 			return err

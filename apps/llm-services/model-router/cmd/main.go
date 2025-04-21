@@ -11,8 +11,19 @@ import (
 )
 
 func main() {
+
+	configPath := os.Getenv("CONFIG_PATH")
+	if configPath == "" {
+		env := os.Getenv("APP_ENV")
+		if env == "" {
+			env = "dev"
+		}
+		configPath = "./internal/config/config-" + env + ".yaml" // fallback 用于本地开发
+	}
+	log.Printf("loaded config filepath: %s", configPath)
+
 	// 初始化应用
-	application, err := app.NewApplication()
+	application, err := app.NewApplication(configPath)
 	if err != nil {
 		log.Fatalf("Failed to initialize application: %v", err)
 	}

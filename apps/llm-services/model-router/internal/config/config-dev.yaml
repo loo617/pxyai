@@ -1,0 +1,17 @@
+database:
+  host: localhost
+  port: 5432
+  user: user
+  password: password
+  dbname: pxyaidb
+  ssl_mode: disable
+
+redis:
+  address: localhost:6379
+  password:
+  db: 0
+  url_duration: 1h
+  email_code_duration: 2m
+
+server:
+  addr: ":3001"

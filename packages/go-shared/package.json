@@ -1,8 +1,0 @@
-{
-  "name": "@pxyai/go-shared",
-  "version": "1.0.0",
-  "description": "",
-  "scripts": {
-    "pull": "go run cmd/gen/main.go"
-  }
-}

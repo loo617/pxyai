@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httputil"
 	"pxyai/llm-services/model-router/internal/schema"
 	"pxyai/llm-services/model-router/internal/schema/deepseek"
 	"pxyai/llm-services/model-router/internal/schema/openrouter"
@@ -50,26 +49,12 @@ func (c *OpenRouterClient) Chat(ctx context.Context, req schema.ChatRequest) (sc
 	clientReq.Header.Set("Authorization", "Bearer "+c.apiKey)
 	clientReq.Header.Set("Content-Type", "application/json")
 
-	reqDump, err := httputil.DumpRequestOut(clientReq, true)
-	if err != nil {
-		log.Error("failed to dump request: ", err)
-	} else {
-		log.Info("HTTP Request:\n", string(reqDump))
-	}
-
 	// 发出请求
 	resp, err := c.httpClient.Do(clientReq)
 	if err != nil {
 		panic(err)
 	}
 	defer resp.Body.Close()
-
-	respDump, err := httputil.DumpResponse(resp, true)
-	if err != nil {
-		log.Error("failed to dump response: ", err)
-	} else {
-		log.Info("HTTP Response:\n", string(respDump))
-	}
 
 	//读取响应
 	var openRouterRsp openrouter.ChatCompletionResponse

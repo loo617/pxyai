@@ -1,15 +1,14 @@
 package services
 
 import (
-	"errors"
-	"pxyai/go-shared/pkg/model"
+	"pxyai/llm-services/model-router/internal/model"
 
 	"gorm.io/gorm"
 )
 
 // ApiKeyService 定义API Key服务的接口
 type ApiKeyService interface {
-	CheckApiKeyAvailable(key string) (bool, error)
+	GetApiKeyByKey(key string) (model.ApiKey, error)
 }
 
 type apiKeyServiceImpl struct {
@@ -20,13 +19,10 @@ func NewApiKeyService(db *gorm.DB) ApiKeyService {
 	return &apiKeyServiceImpl{db: db}
 }
 
-func (s *apiKeyServiceImpl) CheckApiKeyAvailable(key string) (bool, error) {
+func (s *apiKeyServiceImpl) GetApiKeyByKey(key string) (model.ApiKey, error) {
 	var apiKey model.ApiKey
 	if err := s.db.Where("key = ?", key).First(&apiKey).Error; err != nil {
-		return false, errors.New(err.Error())
+		return apiKey, err
 	}
-	if apiKey.ExpiresAt != nil && apiKey.ExpiresAt.Before(s.db.NowFunc()) {
-		return false, errors.New("API key has expired")
-	}
-	return true, nil
+	return apiKey, nil
 }

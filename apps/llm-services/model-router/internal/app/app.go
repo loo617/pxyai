@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"pxyai/go-shared/pkg/database"
+	"pxyai/llm-services/model-router/internal/config"
+	"pxyai/llm-services/model-router/internal/database"
 	"pxyai/llm-services/model-router/internal/handlers"
+	"pxyai/llm-services/model-router/internal/middlewares"
 	routes "pxyai/llm-services/model-router/internal/router"
 	"pxyai/llm-services/model-router/internal/server"
 	"pxyai/llm-services/model-router/internal/services"
@@ -17,31 +19,35 @@ import (
 type Application struct {
 	app    *fiber.App
 	db     *gorm.DB
-	config *Config
+	config *config.Config
 }
 
 // 创建并初始化应用
-func NewApplication() (*Application, error) {
+func NewApplication(filePath string) (*Application, error) {
 
 	//加载配置
-	cfg, err := LoadConfig()
+	cfg, err := config.LoadConfig(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 
 	// 初始化数据库
-	db, err := initDatabase(cfg)
+	db, err := initDatabase(cfg.Database)
 	if err != nil {
 		return nil, fmt.Errorf("database initialization failed: %w", err)
 	}
-
-	// 初始化HTTP服务器
-	app := server.NewHttpServer()
 
 	// 初始化服务
 	apiKeyService := services.NewApiKeyService(db)
 	modelService := services.NewModelService(db)
 	providerService := services.NewProviderService(db)
+
+	// 初始化HTTP服务器
+	app := server.NewHttpServer()
+
+	// 注册业务相关中间件
+	app.Use(middlewares.ErrorMiddleware())
+	app.Use(middlewares.AuthMiddleware(apiKeyService))
 
 	// 初始化处理器
 	chatHandler := handlers.NewChatHandler(apiKeyService, modelService, providerService)
@@ -58,7 +64,7 @@ func NewApplication() (*Application, error) {
 
 // 启动应用
 func (a *Application) Start() error {
-	return server.StartHttpServer(a.app, a.config.Port)
+	return server.StartHttpServer(a.app, a.config.Server.Addr)
 }
 
 // 优雅关闭应用
@@ -75,17 +81,8 @@ func (a *Application) Cleanup() {
 }
 
 // 初始化数据库连接
-func initDatabase(cfg *Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		cfg.DBHost,
-		cfg.DBPort,
-		cfg.DBUser,
-		cfg.DBPassword,
-		cfg.DBName,
-	)
-
-	db, err := database.NewDatabase(dsn)
+func initDatabase(cfg config.DatabaseConfig) (*gorm.DB, error) {
+	db, err := database.NewDatabase(cfg.DSN())
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
