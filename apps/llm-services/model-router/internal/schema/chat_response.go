@@ -11,6 +11,14 @@ type ChatResponse struct {
 	Usage   *ChatUsage   `json:"usage,omitempty"`
 }
 
+type LiteChatResponse struct {
+	ID      string     `json:"id"`
+	Object  string     `json:"object"`
+	Created int64      `json:"created"`
+	Model   string     `json:"model"`
+	Usage   *ChatUsage `json:"usage,omitempty"`
+}
+
 type ChatChoice struct {
 	Index        int         `json:"index"`
 	FinishReason string      `json:"finish_reason"`

@@ -28,7 +28,7 @@ func NewProviderService(db *gorm.DB) ProviderService {
 	s := &providerServiceImpl{
 		cache:     make(map[string]ProviderModelDto),
 		db:        db,
-		refreshIn: 5 * time.Minute,
+		refreshIn: 12 * time.Hour,
 	}
 	go s.startAutoRefresh()
 	return s

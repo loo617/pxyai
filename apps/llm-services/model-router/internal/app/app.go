@@ -23,13 +23,7 @@ type Application struct {
 }
 
 // 创建并初始化应用
-func NewApplication(filePath string) (*Application, error) {
-
-	//加载配置
-	cfg, err := config.LoadConfig(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load config: %w", err)
-	}
+func NewApplication(cfg *config.Config) (*Application, error) {
 
 	// 初始化数据库
 	db, err := initDatabase(cfg.Database)
@@ -45,15 +39,28 @@ func NewApplication(filePath string) (*Application, error) {
 	// 初始化HTTP服务器
 	app := server.NewHttpServer()
 
-	// 注册业务相关中间件
+	// 注册全局中间件
 	app.Use(middlewares.ErrorMiddleware())
-	app.Use(middlewares.AuthMiddleware(apiKeyService))
+
+	// 注册无需鉴权的路由（如健康检查）
+	app.Get("/health", func(c *fiber.Ctx) error {
+		c.JSON(fiber.Map{
+			"status": "ok",
+			"code":   http.StatusOK,
+			"data":   nil,
+		})
+		return nil
+	})
 
 	// 初始化处理器
 	chatHandler := handlers.NewChatHandler(apiKeyService, modelService, providerService)
 
-	// 注册路由
-	RegisterRoutes(app, chatHandler)
+	// 需要鉴权的业务路由
+	v1 := app.Group("/v1", middlewares.AuthMiddleware(apiKeyService))
+	{
+		api := v1.Group("/api")
+		routes.RegisterChatRoutes(api, chatHandler)
+	}
 
 	return &Application{
 		app:    app,
@@ -93,16 +100,7 @@ func initDatabase(cfg config.DatabaseConfig) (*gorm.DB, error) {
 // 注册路由
 func RegisterRoutes(app *fiber.App,
 	chatHandler *handlers.ChatHandler) {
-	//健康检查
-	app.Get("/health", func(c *fiber.Ctx) error {
-		c.JSON(fiber.Map{
-			"status": "ok",
-			"code":   http.StatusOK,
-			"data":   nil,
-		})
-		return nil
-	})
-
+	// 这里不再注册 /health 路由，业务路由由 NewApplication 中完成
 	routerGroup := app.Group("/v1")
 	{
 		//注册chat路由

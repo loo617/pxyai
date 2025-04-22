@@ -5,16 +5,19 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"pxyai/llm-services/model-router/internal/logger"
 	"pxyai/llm-services/model-router/internal/providers"
 	"pxyai/llm-services/model-router/internal/schema"
 	"pxyai/llm-services/model-router/internal/services"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog"
 	"github.com/valyala/fasthttp"
 )
 
 type ChatHandler struct {
+	log             zerolog.Logger
 	apiKeyService   services.ApiKeyService
 	modelService    services.ModelService
 	providerService services.ProviderService
@@ -25,6 +28,7 @@ func NewChatHandler(apiKeyService services.ApiKeyService,
 	modelService services.ModelService,
 	providerService services.ProviderService) *ChatHandler {
 	return &ChatHandler{
+		log:             logger.Get().With().Str("module", "chat_handler").Logger(),
 		apiKeyService:   apiKeyService,
 		modelService:    modelService,
 		providerService: providerService,

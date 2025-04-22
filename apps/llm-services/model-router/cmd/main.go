@@ -2,37 +2,41 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"os/signal"
 	"pxyai/llm-services/model-router/internal/app"
+	"pxyai/llm-services/model-router/internal/config"
+	"pxyai/llm-services/model-router/internal/logger"
 	"syscall"
 	"time"
 )
 
 func main() {
 
+	// Get configuration path from environment or use default
 	configPath := os.Getenv("CONFIG_PATH")
-	if configPath == "" {
-		env := os.Getenv("APP_ENV")
-		if env == "" {
-			env = "dev"
-		}
-		configPath = "./internal/config/config-" + env + ".yaml" // fallback 用于本地开发
+
+	// Load configuration
+	cfg, err := config.LoadConfig(configPath)
+	if err != nil {
+		logger.Get().Fatal().Msgf("Failed to load configuration: %v", err)
 	}
-	log.Printf("loaded config filepath: %s", configPath)
+
+	//初始化日志配置
+	logger.InitLogger(cfg)
+	logger.Get().Info().Msgf("Configuration loaded: %+v", cfg)
 
 	// 初始化应用
-	application, err := app.NewApplication(configPath)
+	application, err := app.NewApplication(cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize application: %v", err)
+		logger.Get().Fatal().Msgf("Failed to initialize application: %v", err)
 	}
 	defer application.Cleanup()
 
 	// 启动服务
 	go func() {
 		if err := application.Start(); err != nil {
-			log.Fatalf("Server failed to start: %v", err)
+			logger.Get().Fatal().Msgf("Server failed to start: %v", err)
 		}
 	}()
 
@@ -44,7 +48,6 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := application.Shutdown(ctx); err != nil {
-		log.Printf("Error during server shutdown: %v", err)
+		logger.Get().Error().Msgf("Error during server shutdown: %v", err)
 	}
-
 }

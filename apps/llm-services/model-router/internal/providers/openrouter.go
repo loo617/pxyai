@@ -8,14 +8,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"pxyai/llm-services/model-router/internal/logger"
 	"pxyai/llm-services/model-router/internal/schema"
 	"pxyai/llm-services/model-router/internal/schema/deepseek"
 	"pxyai/llm-services/model-router/internal/schema/openrouter"
+	"pxyai/llm-services/model-router/internal/utils"
 
-	"github.com/gofiber/fiber/v2/log"
+	"github.com/rs/zerolog"
 )
 
 type OpenRouterClient struct {
+	log        zerolog.Logger
 	apiURL     string
 	apiKey     string
 	modelCode  string
@@ -24,6 +27,7 @@ type OpenRouterClient struct {
 
 func NewOpenRouterClient(apiURL, apiKey, modelCode string) (*OpenRouterClient, error) {
 	return &OpenRouterClient{
+		log:        logger.Get().With().Str("module", "openrouter_client").Logger(),
 		apiURL:     apiURL,
 		apiKey:     apiKey,
 		modelCode:  modelCode,
@@ -33,21 +37,35 @@ func NewOpenRouterClient(apiURL, apiKey, modelCode string) (*OpenRouterClient, e
 
 func (c *OpenRouterClient) Chat(ctx context.Context, req schema.ChatRequest) (schema.ChatResponse, error) {
 
+	var messages []openrouter.Message
+	for _, msg := range req.Messages {
+		messages = append(messages, openrouter.Message{
+			Role:    msg.Role,
+			Content: msg.Content,
+		})
+	}
+
 	openRouterReq := openrouter.ChatCompletionRequest{
 		Model:    c.modelCode,
-		Messages: []openrouter.Message{{Role: req.Messages[0].Role, Content: req.Messages[0].Content}},
+		Messages: messages,
 		Stream:   false,
 	}
 
 	// 将结构体转为 JSON
 	jsonData, err := json.Marshal(openRouterReq)
 	if err != nil {
-		panic(err)
+		return schema.ChatResponse{}, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	clientReq, _ := http.NewRequest("POST", c.apiURL+"/chat/completions", bytes.NewBuffer(jsonData))
+	clientReq, err := http.NewRequest("POST", c.apiURL+"/chat/completions", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return schema.ChatResponse{}, fmt.Errorf("failed to create HTTP request: %w", err)
+	}
+
 	clientReq.Header.Set("Authorization", "Bearer "+c.apiKey)
 	clientReq.Header.Set("Content-Type", "application/json")
+
+	c.log.Info().Str("func", "chat").Msg("send request: " + utils.StructToJSON(openRouterReq))
 
 	// 发出请求
 	resp, err := c.httpClient.Do(clientReq)
@@ -61,21 +79,43 @@ func (c *OpenRouterClient) Chat(ctx context.Context, req schema.ChatRequest) (sc
 	if err := json.NewDecoder(resp.Body).Decode(&openRouterRsp); err != nil {
 		panic(err)
 	}
+	// 记录响应摘要
+	lite := schema.LiteChatResponse{
+		ID:      openRouterRsp.ID,
+		Object:  openRouterRsp.Object,
+		Created: openRouterRsp.Created,
+		Model:   openRouterRsp.Model,
+		Usage: &schema.ChatUsage{
+			PromptTokens:     openRouterRsp.Usage.PromptTokens,
+			CompletionTokens: openRouterRsp.Usage.CompletionTokens,
+			TotalTokens:      openRouterRsp.Usage.TotalTokens,
+		},
+	}
+	c.log.Info().Str("func", "chat").Msg("receive response: " + utils.StructToJSON(lite))
 
-	log.Info("openrouter rsp: ", openRouterRsp)
+	// 完全映射响应
 	result := schema.ChatResponse{
 		ID:     openRouterRsp.ID,
 		Object: openRouterRsp.Object,
 		// ...
-		Choices: []schema.ChatChoice{
-			{
-				Index: openRouterRsp.Choices[0].Index,
-				Message: schema.ChatMessage{
-					Role:    openRouterRsp.Choices[0].Message.Role,
-					Content: openRouterRsp.Choices[0].Message.Content,
-				},
-			},
+		Choices: make([]schema.ChatChoice, len(openRouterRsp.Choices)),
+		Usage: &schema.ChatUsage{
+			PromptTokens:     openRouterRsp.Usage.PromptTokens,
+			CompletionTokens: openRouterRsp.Usage.CompletionTokens,
+			TotalTokens:      openRouterRsp.Usage.TotalTokens,
 		},
+	}
+
+	// 处理所有选择，不只是第一个
+	for i, choice := range openRouterRsp.Choices {
+		result.Choices[i] = schema.ChatChoice{
+			Index: choice.Index,
+			Message: schema.ChatMessage{
+				Role:    choice.Message.Role,
+				Content: choice.Message.Content,
+			},
+			FinishReason: choice.FinishReason,
+		}
 	}
 
 	return result, nil

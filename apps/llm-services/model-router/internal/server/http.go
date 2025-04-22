@@ -9,7 +9,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 )
@@ -27,7 +26,6 @@ func NewHttpServer() *fiber.App {
 	// 注册基础中间件
 	app.Use(middlewares.ErrorMiddleware()) // 错误处理
 	app.Use(cors.New())                    // CORS
-	app.Use(logger.New())                  // 日志
 	app.Use(recover.New())                 // 注册错误恢复中间件
 	app.Use(requestid.New())               // RequestID
 	return app

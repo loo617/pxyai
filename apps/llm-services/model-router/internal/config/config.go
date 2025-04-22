@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	App      AppConfig      `mapstructure:"app"`
 	Database DatabaseConfig `mapstructure:"database"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	Server   ServerConfig   `mapstructure:"server"`
@@ -15,20 +16,39 @@ type Config struct {
 
 var Cfg *Config
 
-func LoadConfig(filePath string) (*Config, error) {
-	viper.SetConfigFile(filePath)
+func LoadConfig(configPath string) (*Config, error) {
+
+	if configPath == "" {
+		//默认配置文件
+		configPath = "./internal/config/config-dev.yaml"
+	}
+
+	// Configure viper
+	viper.SetConfigFile(configPath)
 	viper.AutomaticEnv()
 
+	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read config file %s: %w", configPath, err)
 	}
 
+	// Unmarshal into Config struct
 	var cfg Config
 	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
+	// Store globally
+	Cfg = &cfg
 
 	return &cfg, nil
+}
+
+type AppConfig struct {
+	Env string `mapstructure:"env"`
+}
+
+func (a AppConfig) IsDev() bool {
+	return a.Env == "dev"
 }
 
 type DatabaseConfig struct {

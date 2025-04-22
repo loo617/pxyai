@@ -3,8 +3,11 @@ BUILD_DIR := ./bin
 BUILD_TARGET := $(BUILD_DIR)/$(APP_NAME)
 MAIN_PACKAGE := ./cmd
 
-GOOS ?= $(shell go env GOOS)
-GOARCH ?= $(shell go env GOARCH)
+# GOOS ?= $(shell go env GOOS)
+# GOARCH ?= $(shell go env GOARCH)
+
+GOOS ?= linux
+GOARCH ?= amd64
 CGO_ENABLED ?= 0
 LD_FLAGS := -s -w
 BUILD_TIME := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
