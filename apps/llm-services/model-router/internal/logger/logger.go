@@ -17,8 +17,10 @@ var logInstance zerolog.Logger
 func InitLogger(cfg *config.Config) {
 	if cfg.App.IsDev() {
 		writer := zerolog.ConsoleWriter{
-			Out:        os.Stdout,
-			TimeFormat: "2006-01-02 15:04:05.999",
+			Out: os.Stdout,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Format("2006-01-02 15:04:05.000")
+			},
 		}
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 		logInstance = zerolog.New(writer).With().Timestamp().Logger()
@@ -43,6 +45,7 @@ func InitLogger(cfg *config.Config) {
 			MaxAge:   7,   // 保留天数
 			Compress: false,
 		}
+		zerolog.TimeFieldFormat = "2006-01-02T15:04:05.000Z07:00" // ISO8601 格式，带毫秒
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
 		logInstance = zerolog.New(fileWriter).With().Timestamp().Logger()
 	}
